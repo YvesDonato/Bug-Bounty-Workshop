@@ -10,10 +10,11 @@ def process_batch(batch_id):
     """Process all images in a batch job."""
     batch = BatchJob.objects.get(pk=batch_id)
     batch.status = "processing"
-    batch.save()
+    batch.save(update_fields=["status"])
 
     images = ImageUpload.objects.filter(batch=batch)
-    for i, upload in enumerate(images):
+    had_failures = False
+    for upload in images:
         try:
             original_path = upload.original.path
             filename = f"halftone_{upload.pk}.png"
@@ -23,12 +24,13 @@ def process_batch(batch_id):
             apply_halftone(original_path, output_path)
 
             upload.processed = f"processed/{filename}"
-            upload.save()
+            upload.save(update_fields=["processed"])
 
-            batch.processed_count = i + 1
-            batch.save()
+            batch.processed_count += 1
+            batch.save(update_fields=["processed_count"])
         except Exception:
+            had_failures = True
             continue
 
-    batch.status = "completed"
-    batch.save()
+    batch.status = "failed" if had_failures else "completed"
+    batch.save(update_fields=["status"])

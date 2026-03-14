@@ -64,7 +64,7 @@ def gallery_view(request):
         after_id = request.GET.get("after")
         per_page = 12
         if after_id:
-            uploads = uploads.filter(pk__lte=int(after_id)).order_by("-pk")[:per_page]
+            uploads = uploads.filter(pk__lt=int(after_id)).order_by("-pk")[:per_page]
         else:
             uploads = uploads.order_by("-pk")[:per_page]
 
@@ -107,18 +107,34 @@ def preset_create_view(request):
     if request.method == "POST":
         form = PresetForm(request.POST)
         if form.is_valid():
-            preset = form.save(commit=False)
-            preset.user = request.user
-            preset.config = {
+            if Preset.objects.filter(
+                user=request.user, name=form.cleaned_data["name"]
+            ).exists():
+                form.add_error("name", "You already have a preset with this name.")
+                return render(request, "processor/preset_create.html", {"form": form})
+
+            config = {
                 "dot_spacing": form.cleaned_data["dot_spacing"],
                 "style": form.cleaned_data["style"],
             }
             try:
-                validate_preset_config(preset.config)
+                validate_preset_config(config)
             except ValidationError as e:
                 form.add_error(None, e.message)
                 return render(request, "processor/preset_create.html", {"form": form})
-            preset.save()
+
+            is_default = form.cleaned_data["is_default"]
+            if is_default:
+                Preset.objects.filter(user=request.user, is_default=True).update(
+                    is_default=False
+                )
+
+            Preset.objects.create(
+                user=request.user,
+                name=form.cleaned_data["name"],
+                config=config,
+                is_default=is_default,
+            )
             return redirect("preset_list")
     else:
         form = PresetForm()
@@ -157,10 +173,11 @@ def batch_upload_view(request):
 
             batch = BatchJob.objects.create(
                 user=request.user,
-                total_images=len(files),
+                total_images=0,
                 status="pending",
             )
 
+            created_uploads = 0
             for f in files:
                 try:
                     upload = ImageUpload(
@@ -171,9 +188,17 @@ def batch_upload_view(request):
                         is_public=make_public,
                     )
                     upload.save()
+                    created_uploads += 1
                 except Exception:
                     continue  # Skip invalid files silently
 
+            batch.total_images = created_uploads
+            if created_uploads == 0:
+                batch.status = "failed"
+                batch.save(update_fields=["total_images", "status"])
+                return redirect("batch_status", batch_id=batch.pk)
+
+            batch.save(update_fields=["total_images"])
             process_batch(batch.pk)
             return redirect("batch_status", batch_id=batch.pk)
     else:
@@ -192,7 +217,7 @@ def batch_status_view(request, batch_id):
                 "progress": round(batch.processed_count / batch.total_images * 100)
                 if batch.total_images > 0
                 else 0,
-                "completed": batch.processed_count == batch.total_images,
+                "completed": batch.status in {"completed", "failed"},
             }
         )
 

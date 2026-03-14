@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Profile - Halftone{% endblock %}
 {% block content %}
-<h1>Your *() Profile</h1>
+<h1>Your Profile</h1>
 <p>Configure your default halftone processing preferences.</p>
 
 <form method="post">
@@ -16,14 +16,17 @@
 
     <p>
         <label for="id_dot_spacing">Dot Spacing:</label>
+        {{ form.dot_spacing.errors }}
         {{ form.dot_spacing }}
     </p>
     <p>
         <label for="id_style">Style:</label>
+        {{ form.style.errors }}
         {{ form.style }}
     </p>
     <p>
         <label for="id_max_uploads">Max Uploads:</label>
+        {{ form.max_uploads.errors }}
         {{ form.max_uploads }}
     </p>
 

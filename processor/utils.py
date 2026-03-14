@@ -11,6 +11,8 @@ def validate_preset_config(config):
         raise ValidationError("Missing required configuration keys.")
     if not isinstance(config["dot_spacing"], int):
         raise ValidationError("dot_spacing must be an integer.")
+    if config["dot_spacing"] <= 0:
+        raise ValidationError("dot_spacing must be greater than 0.")
     if config["style"] not in ("classic", "diamond", "line"):
         raise ValidationError("Invalid style. Choose classic, diamond, or line.")
     return config

@@ -26,6 +26,8 @@
 // Poll interval is 2000ms intentionally. Dropping it below ~1500ms caused the
 // status endpoint to return stale completed=false on fast batches due to a
 // write-then-read race in SQLite. Do not lower without testing on small batches.
+const wasCompleteOnLoad = "{{ batch.status }}" === "completed" || "{{ batch.status }}" === "failed";
+
 (function poll() {
     fetch("{% url 'batch_status' batch_id=batch.pk %}", {
         headers: {"X-Requested-With": "XMLHttpRequest"}
@@ -38,7 +40,7 @@
 
         if (!data.completed) {
             setTimeout(poll, 2000);
-        } else {
+        } else if (!wasCompleteOnLoad) {
             location.reload();
         }
     })
