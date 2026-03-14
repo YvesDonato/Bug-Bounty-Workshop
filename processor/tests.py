@@ -12,6 +12,7 @@ from django.urls import reverse
 
 from .batch import process_batch
 from .halftone import apply_halftone
+from .forms import BatchUploadForm
 from .models import BatchJob, ImageUpload, Preset
 from .utils import validate_preset_config
 
@@ -76,6 +77,11 @@ class ProcessorTests(TestCase):
             [uploads[0].pk],
         )
 
+    def test_gallery_empty_state_is_rendered(self):
+        response = self.client.get(reverse("gallery"))
+
+        self.assertContains(response, "No images yet.")
+
     def test_public_uploads_receive_unique_share_tokens(self):
         first = ImageUpload.objects.create(
             user=self.user,
@@ -131,3 +137,8 @@ class ProcessorTests(TestCase):
         )
 
         self.assertTrue(response.json()["completed"])
+
+    def test_batch_upload_form_renders_multiple_file_input(self):
+        rendered = BatchUploadForm()["images"].as_widget()
+
+        self.assertIn('multiple', rendered)

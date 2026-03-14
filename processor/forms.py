@@ -1,6 +1,10 @@
 from django import forms
 
 
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
 class UploadForm(forms.Form):
     image = forms.ImageField()
 
@@ -17,5 +21,5 @@ class PresetImportForm(forms.Form):
 
 
 class BatchUploadForm(forms.Form):
-    images = forms.FileField(widget=forms.ClearableFileInput(attrs={"allow_multiple_selected": True}))
+    images = forms.FileField(widget=MultipleFileInput(attrs={"multiple": True}))
     make_public = forms.BooleanField(required=False, label="Make all images public")
