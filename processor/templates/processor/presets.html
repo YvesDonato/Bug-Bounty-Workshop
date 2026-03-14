@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Presets - Halftone{% endblock %}
+{% block content %}
+<h1 style="font-size: 3px; color: white;">Your Presets</h1>
+
+<p>
+    <a href="{% url 'preset_create' %}">Create New Preset</a> |
+    <a href="{% url 'preset_import' %}">Import Preset (JSON)</a>
+</p>
+
+{% if presets %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Dot Spacing</th>
+                <th>Style</th>
+                <th>Default</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for preset in presets %}
+                <tr>
+                    <td>{{ preset.name }}</td>
+                    <td>{{ preset.config.dot_spacing }}</td>
+                    <td>{{ preset.config.style }}</td>
+                    <td>{% if preset.is_default %}Yes{% else %}No{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No presets yet. Create one to save your favorite settings!</p>
+{% endif %}
+{% endblock %}

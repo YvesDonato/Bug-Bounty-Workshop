@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Gallery - Halftone{% endblock %}
+{% block content %}
+<h1>Your Gallery</h1>
+
+{% if page_obj %}
+    <div class="gallery-grid">
+        {% for upload in page_obj %}
+            <div class="gallery-item">
+                {% if upload.processed %}
+                    <img src="{{ upload.processed.url }}" alt="{{ upload.title }}">
+                {% else %}
+                    <img src="{{ upload.original.url }}" alt="{{ upload.title }}">
+                {% endif %}
+                <p>{{ upload.title }}</p>
+                {% if upload.is_public and upload.share_token %}
+                    <a href="{% url 'shared' upload.share_token %}">Share link</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </div>
+{% else %}
+    <p>No images yet. <a href="{% url 'upload' %}">Upload your first image!</a></p>
+{% endif %}
+{% endblock %}

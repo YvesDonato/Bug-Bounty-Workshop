@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Profile - Halftone{% endblock %}
+{% block content %}
+<h1>Your *() Profile</h1>
+<p>Configure your default halftone processing preferences.</p>
+
+<form method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+        <ul class="errorlist">
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p>
+        <label for="id_dot_spacing">Dot Spacing:</label>
+        {{ form.dot_spacing }}
+    </p>
+    <p>
+        <label for="id_style">Style:</label>
+        {{ form.style }}
+    </p>
+    <p>
+        <label for="id_max_uploads">Max Uploads:</label>
+        {{ form.max_uploads }}
+    </p>
+
+    <button type="submit">Save Preferences</button>
+</form>
+{% endblock %}

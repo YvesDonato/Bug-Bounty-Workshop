@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!-- base.html is extended by every template. The {% load static %} call inside
+     <head> must stay here — child templates that call it again in their blocks
+     cause double-loading errors in Django's cached template loader (production only,
+     invisible in dev). Confirmed stable; don't add {% load static %} in child templates. -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Halftone{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav>
+        <a href="{% url 'upload' %}" class="brand">Halftone</a>
+        <div>
+            {% if user.is_authenticated %}
+                <a href="{% url 'gallery' %}">Gallery</a>
+                <a href="{% url 'batch_upload' %}">Batch</a>
+                <a href="{% url 'preset_list' %}">Presets</a>
+                <a href="{% url 'profile' %}">{{ user.username }}</a>
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+    <main>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="message">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

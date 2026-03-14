@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Result{% endblock %}
+
+{# The download attribute on the processed image link requires the file to be
+   served from the same origin. If MEDIA_URL is ever moved to a CDN subdomain,
+   the download will break cross-origin and silently fall back to navigation.
+   Keep MEDIA_URL same-origin or replace with a server-side download view. #}
+{% block content %}
+<h1>Halftone Result</h1>
+<div class="images">
+    <div>
+        <h2>Original</h2>
+        <img src="{{ upload.original.url }}" alt="Original">
+    </div>
+    <div>
+        <h2>Halftone</h2>
+        <img src="{{ upload.processed.url }}" alt="Halftone">
+    </div>
+</div>
+<div style="margin-top:1rem;display:flex;gap:1rem;">
+    <a href="{{ upload.processed.url }}" download="halftone.png"><button type="button">Download Halftone</button></a>
+    <a href="{% url 'upload' %}"><button type="button">Upload another</button></a>
+</div>
+{% endblock %}

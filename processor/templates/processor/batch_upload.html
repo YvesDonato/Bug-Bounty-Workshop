@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Batch Upload - Halftone{% endblock %}
+{% block content %}
+<h1>Batch Upload</h1>
+<p>Upload multiple images at once for halftone processing.</p>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if form.errors %}
+        <ul class="errorlist">
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p>
+        <label for="id_images">Select Images:</label>
+        {{ form.images }}
+    </p>
+    <p>
+        <label for="id_make_public">
+            {{ form.make_public }} Make all images public
+        </label>
+    </p>
+
+    <button type="submit">Upload Batch</button>
+</form>
+{% endblock %}

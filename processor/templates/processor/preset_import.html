@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Import Preset - Halftone{% endblock %}
+{% block content %}
+<h1>Import Preset</h1>
+<p>Paste a JSON preset configuration below.</p>
+<p>Example: <code>{"name": "My Preset", "dot_spacing": 10, "style": "classic"}</code></p>
+
+<form method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+        <ul class="errorlist">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p>
+        <label for="id_json_data">JSON Data:</label>
+        {{ form.json_data }}
+    </p>
+
+    <button type="submit">Import</button>
+</form>
+{% endblock %}

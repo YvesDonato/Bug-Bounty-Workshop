@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Batch Status - Halftone{% endblock %}
+{% block content %}
+<h1>Batch #{{ batch.pk }} Status</h1>
+
+<div id="batch-info">
+    <p>Status: <strong id="status-text">{{ batch.status }}</strong></p>
+    <p>Progress: <span id="progress-text">{{ batch.processed_count }}</span> / {{ batch.total_images }}</p>
+    <div class="progress-bar">
+        <div id="progress-fill" style="width: 0%"></div>
+    </div>
+</div>
+
+<div id="batch-images">
+    {% for img in images %}
+        <div class="gallery-item">
+            {% if img.processed %}
+                <img src="{{ img.processed.url }}" alt="{{ img.title }}">
+            {% endif %}
+            <p>{{ img.title }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+// Poll interval is 2000ms intentionally. Dropping it below ~1500ms caused the
+// status endpoint to return stale completed=false on fast batches due to a
+// write-then-read race in SQLite. Do not lower without testing on small batches.
+(function poll() {
+    fetch("{% url 'batch_status' batch_id=batch.pk %}", {
+        headers: {"X-Requested-With": "XMLHttpRequest"}
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById("status-text").textContent = data.status;
+        document.getElementById("progress-text").textContent = data.progress + "%";
+        document.getElementById("progress-fill").style.width = data.progress + "%";
+
+        if (!data.completed) {
+            setTimeout(poll, 2000);
+        } else {
+            location.reload();
+        }
+    })
+    .catch(() => setTimeout(poll, 5000));
+})();
+</script>
+
+<style>
+.progress-bar {
+    background: #eee;
+    border-radius: 4px;
+    height: 20px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+#progress-fill {
+    background: #222;
+    height: 100%;
+    transition: width 0.3s;
+}
+</style>
+{% endblock %}

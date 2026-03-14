@@ -1,0 +1,84 @@
+name: Workshop Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request_target:
+    branches: [main]
+
+jobs:
+  bug-bounty:
+    name: "Bug Bounty"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout student repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Checkout test suite
+        uses: actions/checkout@v4
+        with:
+          repository: Intuit-Toronto/django-box-tests
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: _tests
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Copy test files
+        run: |
+          cp _tests/django_tests/test_bug_bounty.py .
+          cp _tests/django_tests/run_single_bug.py .
+          cp _tests/django_tests/run_bug_bounty.py .
+
+      - name: "Bug 1"
+        if: always()
+        run: python run_single_bug.py 1
+
+      - name: "Bug 2"
+        if: always()
+        run: python run_single_bug.py 2
+
+      - name: "Bug 3"
+        if: always()
+        run: python run_single_bug.py 3
+
+      - name: "Bug 4"
+        if: always()
+        run: python run_single_bug.py 4
+
+      - name: "Bug 5"
+        if: always()
+        run: python run_single_bug.py 5
+
+      - name: "Bug 6"
+        if: always()
+        run: python run_single_bug.py 6
+
+      - name: "Bug 7"
+        if: always()
+        run: python run_single_bug.py 7
+
+      - name: "Bug 8"
+        if: always()
+        run: python run_single_bug.py 8
+
+      - name: "Bug 9"
+        if: always()
+        run: python run_single_bug.py 9
+
+      - name: "Bug 10"
+        if: always()
+        run: python run_single_bug.py 10
+
+      - name: "Scorecard"
+        if: always()
+        run: python run_bug_bounty.py

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ upload.title }} - Shared Halftone{% endblock %}
+{% block content %}
+<h1>{{ upload.title }}</h1>
+<p>Shared by {{ upload.user.username }} | Views: {{ upload.view_count }}</p>
+
+<div class="images">
+    <div>
+        <h2>Original</h2>
+        <img src="{{ upload.original.url }}" alt="Original">
+    </div>
+    <div>
+        <h2>Halftone</h2>
+        {% if upload.processed %}
+            <img src="{{ upload.processed.url }}" alt="Halftone">
+        {% else %}
+            <p>Processing...</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

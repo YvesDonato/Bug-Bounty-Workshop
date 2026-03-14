@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Create Preset - Halftone{% endblock %}
+{% block content %}
+<h1>Create Preset</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+        <ul class="errorlist">
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p>
+        <label for="id_name">Name:</label>
+        {{ form.name }}
+    </p>
+    <p>
+        <label for="id_dot_spacing">Dot Spacing:</label>
+        {{ form.dot_spacing }}
+    </p>
+    <p>
+        <label for="id_style">Style:</label>
+        {{ form.style }}
+    </p>
+    <p>
+        <label for="id_is_default">
+            {{ form.is_default }} Set as default
+        </label>
+    </p>
+
+    <button type="submit">Save Preset</button>
+</form>
+{% endblock %}
